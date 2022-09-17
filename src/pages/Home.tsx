@@ -1,4 +1,28 @@
+import { useEffect, useState } from "react";
+import axios from "axios";
+import CardSkeleton from "../components/CardSkeleton/CardSkeleton";
+import { WilderType } from "../types";
+import Card from "../components/Card/Card";
+
 const Home: React.FC = () => {
+  const [data, setData] = useState<WilderType[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+
+  /**
+   * Fetch data from API
+   */
+  useEffect(() => {
+    (async () => {
+      setTimeout(async () => {
+        const { data } = await axios.get(
+          `${process.env.REACT_APP_API_URL}/wilders`
+        );
+        setData(data);
+        setLoading(false);
+      }, 2000);
+    })();
+  }, []);
+
   return (
     <div className="container px-4 mx-auto relative">
       <div className="flex items-stretch justify-between mb-6">
@@ -35,6 +59,17 @@ const Home: React.FC = () => {
             </svg>
           </button>
         </div>
+      </div>
+      <div className="flex flex-wrap gap-10">
+        {loading ? (
+          <CardSkeleton item={2} />
+        ) : data.length ? (
+          data.map((wilder) => {
+            return <Card wilder={wilder} key={wilder.id} />;
+          })
+        ) : (
+          <p>Aucun wilder</p>
+        )}
       </div>
     </div>
   );
