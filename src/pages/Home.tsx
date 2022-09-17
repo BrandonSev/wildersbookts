@@ -1,15 +1,16 @@
-import { useEffect, useState } from "react";
+import { MouseEvent, useEffect, useState } from "react";
 import axios from "axios";
 import CardSkeleton from "../components/CardSkeleton/CardSkeleton";
-import { SkillType, WilderType } from "../types";
+import { ModalType, SkillType, WilderType } from "../types";
 import Card from "../components/Card/Card";
 import ModalWrapper from "../components/ModalWrapper/ModalWrapper";
 import AddSkillsForm from "../components/AddSkills/AddSkillsForm";
+import AddWilderForm from "../components/AddWilder/AddWilderForm";
 
 const Home: React.FC = () => {
   const [data, setData] = useState<WilderType[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const [modal, setModal] = useState<{ open: boolean; type: string }>({
+  const [modal, setModal] = useState<{ open: boolean; type: ModalType }>({
     open: false,
     type: "",
   });
@@ -30,8 +31,20 @@ const Home: React.FC = () => {
     })();
   }, []);
 
-  const handleClickAddSkill = () => {
-    setModal({ type: "addSkill", open: true });
+  /**
+   * Fetch skills from API
+   */
+  useEffect(() => {
+    (async () => {
+      const { data } = await axios.get(
+        `${process.env.REACT_APP_API_URL}/skills`
+      );
+      setSkills(data);
+    })();
+  }, []);
+
+  const handleOpenModal = (e: MouseEvent, type: ModalType) => {
+    setModal({ type, open: true });
   };
 
   const handleCloseModal = () => {
@@ -45,7 +58,10 @@ const Home: React.FC = () => {
           Liste des wilders
         </p>
         <div className="flex gap-2">
-          <button className="text-black px-4 py-2 bg-indigo-300 text-sm rounded flex items-center gap-2">
+          <button
+            className="text-black px-4 py-2 bg-indigo-300 text-sm rounded flex items-center gap-2"
+            onClick={(e) => handleOpenModal(e, "addWilder")}
+          >
             Ajouter un wilder
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -61,7 +77,7 @@ const Home: React.FC = () => {
           </button>
           <button
             className="text-black px-4 py-2 bg-indigo-300 text-sm rounded flex items-center gap-2"
-            onClick={handleClickAddSkill}
+            onClick={(e) => handleOpenModal(e, "addSkill")}
           >
             Ajouter des skills
             <svg
@@ -94,6 +110,13 @@ const Home: React.FC = () => {
           <>
             {modal.type === "addSkill" && (
               <AddSkillsForm setModal={setModal} setSkills={setSkills} />
+            )}
+            {modal.type === "addWilder" && (
+              <AddWilderForm
+                setModal={setModal}
+                skills={skills}
+                setData={setData}
+              />
             )}
             <div className="absolute -top-4 right-4" onClick={handleCloseModal}>
               <button className="h-5 w-5 bg-indigo-900 flex items-center justify-center rounded-full p-4 text-white">
