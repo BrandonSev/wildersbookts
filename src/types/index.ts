@@ -20,3 +20,8 @@ export type SkillType = {
 export type CardTypeProps = {
     wilder: WilderType;
 }
+
+export type AddSkillsTypeProps = {
+    setModal: (modal: {open: boolean, type: string}) => void;
+    setSkills: (prev: React.SetStateAction<SkillType[]>) => void;
+}

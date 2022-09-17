@@ -1,12 +1,19 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import CardSkeleton from "../components/CardSkeleton/CardSkeleton";
-import { WilderType } from "../types";
+import { SkillType, WilderType } from "../types";
 import Card from "../components/Card/Card";
+import ModalWrapper from "../components/ModalWrapper/ModalWrapper";
+import AddSkillsForm from "../components/AddSkills/AddSkillsForm";
 
 const Home: React.FC = () => {
   const [data, setData] = useState<WilderType[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [modal, setModal] = useState<{ open: boolean; type: string }>({
+    open: false,
+    type: "",
+  });
+  const [skills, setSkills] = useState<SkillType[]>([]);
 
   /**
    * Fetch data from API
@@ -22,6 +29,14 @@ const Home: React.FC = () => {
       }, 2000);
     })();
   }, []);
+
+  const handleClickAddSkill = () => {
+    setModal({ type: "addSkill", open: true });
+  };
+
+  const handleCloseModal = () => {
+    setModal({ type: "", open: false });
+  };
 
   return (
     <div className="container px-4 mx-auto relative">
@@ -44,7 +59,10 @@ const Home: React.FC = () => {
               <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z" />
             </svg>
           </button>
-          <button className="text-black px-4 py-2 bg-indigo-300 text-sm rounded flex items-center gap-2">
+          <button
+            className="text-black px-4 py-2 bg-indigo-300 text-sm rounded flex items-center gap-2"
+            onClick={handleClickAddSkill}
+          >
             Ajouter des skills
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -71,6 +89,20 @@ const Home: React.FC = () => {
           <p>Aucun wilder</p>
         )}
       </div>
+      {modal.open && (
+        <ModalWrapper>
+          <>
+            {modal.type === "addSkill" && (
+              <AddSkillsForm setModal={setModal} setSkills={setSkills} />
+            )}
+            <div className="absolute -top-4 right-4" onClick={handleCloseModal}>
+              <button className="h-5 w-5 bg-indigo-900 flex items-center justify-center rounded-full p-4 text-white">
+                X
+              </button>
+            </div>
+          </>
+        </ModalWrapper>
+      )}
     </div>
   );
 };
