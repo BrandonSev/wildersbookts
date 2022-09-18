@@ -6,10 +6,18 @@ import Card from "../components/Card/Card";
 import ModalWrapper from "../components/ModalWrapper/ModalWrapper";
 import AddSkillsForm from "../components/AddSkills/AddSkillsForm";
 import AddWilderForm from "../components/AddWilder/AddWilderForm";
+import ModalConfirm from "../components/ModalConfirm/ModalConfirm";
 
 const Home: React.FC = () => {
   const [data, setData] = useState<WilderType[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [deletingWilder, setDeletingWilder] = useState<{
+    wilder?: WilderType;
+    open: boolean;
+    refCard?: React.MutableRefObject<HTMLDivElement>;
+  }>({
+    open: false,
+  });
   const [modal, setModal] = useState<{ open: boolean; type: ModalType }>({
     open: false,
     type: "",
@@ -99,32 +107,39 @@ const Home: React.FC = () => {
           <CardSkeleton item={2} />
         ) : data.length ? (
           data.map((wilder) => {
-            return <Card wilder={wilder} key={wilder.id} />;
+            return (
+              <Card
+                wilder={wilder}
+                key={wilder.id}
+                setDeletingWilder={setDeletingWilder}
+              />
+            );
           })
         ) : (
           <p>Aucun wilder</p>
         )}
       </div>
-      {modal.open && (
-        <ModalWrapper>
-          <>
-            {modal.type === "addSkill" && (
-              <AddSkillsForm setModal={setModal} setSkills={setSkills} />
-            )}
-            {modal.type === "addWilder" && (
-              <AddWilderForm
-                setModal={setModal}
-                skills={skills}
-                setData={setData}
-              />
-            )}
-            <div className="absolute -top-4 right-4" onClick={handleCloseModal}>
-              <button className="h-5 w-5 bg-indigo-900 flex items-center justify-center rounded-full p-4 text-white">
-                X
-              </button>
-            </div>
-          </>
+      {modal.open && modal.type === "addSkill" && (
+        <ModalWrapper title="Ajouter un skill" setModal={setModal}>
+          <AddSkillsForm setModal={setModal} setSkills={setSkills} />
         </ModalWrapper>
+      )}
+      {modal.open && modal.type === "addWilder" && (
+        <ModalWrapper title="Ajouter un Wilder" setModal={setModal}>
+          <AddWilderForm
+            setModal={setModal}
+            skills={skills}
+            setData={setData}
+          />
+        </ModalWrapper>
+      )}
+      {deletingWilder && deletingWilder.refCard && deletingWilder.wilder && (
+        <ModalConfirm
+          setDeletingWilder={setDeletingWilder}
+          setData={setData}
+          refCard={deletingWilder.refCard}
+          wilder={deletingWilder.wilder}
+        />
       )}
     </div>
   );

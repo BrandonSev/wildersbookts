@@ -27,38 +27,31 @@ const AddSkillsForm = ({ setModal, setSkills }: AddSkillsTypeProps) => {
   });
 
   return (
-    <div className="relative text-indigo-900">
-      <h3 className="bg-indigo-200 p-4 rounded-t text-bold uppercase">
-        Ajouter des skills
-      </h3>
-      <div className="p-4 rounded-b bg-indigo-400 ">
-        <form onSubmit={formik.handleSubmit}>
-          <div className="flex flex-col py-4">
-            <label htmlFor="name" className="mb-1">
-              Nom:
-            </label>
-            <input
-              type="text"
-              name="name"
-              id="name"
-              value={formik.values.name}
-              onChange={formik.handleChange}
-              className="p-2 rounded bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-indigo-300 text-black"
-              autoComplete="off"
-            />
-            {formik.errors.name && (
-              <div className="text-red-500 mt-1">{formik.errors.name}</div>
-            )}
-          </div>
-          <button
-            type="submit"
-            className="block ml-auto bg-indigo-100 px-4 py-2 rounded mt-2"
-          >
-            Valider
-          </button>
-        </form>
+    <form onSubmit={formik.handleSubmit}>
+      <div className="flex flex-col py-4">
+        <label htmlFor="name" className="mb-1">
+          Nom:
+        </label>
+        <input
+          type="text"
+          name="name"
+          id="name"
+          value={formik.values.name}
+          onChange={formik.handleChange}
+          className="p-2 rounded bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-indigo-300 text-black"
+          autoComplete="off"
+        />
+        {formik.errors.name && (
+          <div className="text-red-500 mt-1">{formik.errors.name}</div>
+        )}
       </div>
-    </div>
+      <button
+        type="submit"
+        className="block ml-auto bg-indigo-100 px-4 py-2 rounded mt-2"
+      >
+        Valider
+      </button>
+    </form>
   );
 };
 
