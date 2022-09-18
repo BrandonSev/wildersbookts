@@ -7,6 +7,7 @@ import ModalWrapper from "../components/ModalWrapper/ModalWrapper";
 import AddSkillsForm from "../components/AddSkills/AddSkillsForm";
 import AddWilderForm from "../components/AddWilder/AddWilderForm";
 import ModalConfirm from "../components/ModalConfirm/ModalConfirm";
+import EditWilderForm from "../components/EditWilderForm/EditWilderForm";
 
 const Home: React.FC = () => {
   const [data, setData] = useState<WilderType[]>([]);
@@ -18,7 +19,7 @@ const Home: React.FC = () => {
   }>({
     open: false,
   });
-  const [modal, setModal] = useState<{ open: boolean; type: ModalType }>({
+  const [modal, setModal] = useState<ModalType>({
     open: false,
     type: "",
   });
@@ -51,7 +52,7 @@ const Home: React.FC = () => {
     })();
   }, []);
 
-  const handleOpenModal = (e: MouseEvent, type: ModalType) => {
+  const handleOpenModal = (e: MouseEvent, type: ModalType["type"]) => {
     setModal({ type, open: true });
   };
 
@@ -112,6 +113,7 @@ const Home: React.FC = () => {
                 wilder={wilder}
                 key={wilder.id}
                 setDeletingWilder={setDeletingWilder}
+                setModal={setModal}
               />
             );
           })
@@ -130,6 +132,16 @@ const Home: React.FC = () => {
             setModal={setModal}
             skills={skills}
             setData={setData}
+          />
+        </ModalWrapper>
+      )}
+      {modal.open && modal.type === "editWilder" && modal.wilder && (
+        <ModalWrapper title="Modifier un Wilder" setModal={setModal}>
+          <EditWilderForm
+            setModal={setModal}
+            skills={skills}
+            setData={setData}
+            wilder={modal.wilder}
           />
         </ModalWrapper>
       )}

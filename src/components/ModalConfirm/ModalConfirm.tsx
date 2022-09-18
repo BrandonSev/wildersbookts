@@ -8,7 +8,7 @@ function ModalConfirm({
   refCard,
 }: ModalConfirmTypeProps) {
   const handleCloseModal = () => {
-    setDeletingWilder({ open: false });
+    setDeletingWilder({ open: false, type: "" });
   };
 
   const handleDeleteWilder = async () => {
@@ -16,7 +16,7 @@ function ModalConfirm({
       `${process.env.REACT_APP_API_URL}/wilders/${wilder.id}`
     );
     if (response.status === 204) {
-      setDeletingWilder({ open: false });
+      setDeletingWilder({ open: false, type: "" });
       refCard.current.classList.add("fadeOut");
       setTimeout(() => {
         setData((prev) => prev.filter((w) => w.id !== wilder.id));

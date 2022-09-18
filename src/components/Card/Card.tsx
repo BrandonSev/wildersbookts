@@ -6,7 +6,7 @@ import { useState } from "react";
 import { CardTypeProps } from "../../types";
 import Skill from "../Skill/Skill";
 
-const Card = ({ wilder, setDeletingWilder }: CardTypeProps) => {
+const Card = ({ wilder, setDeletingWilder, setModal }: CardTypeProps) => {
   const [cardHover, setCardHover] = useState<boolean>(false);
   const refCard = useRef() as React.MutableRefObject<HTMLDivElement>;
 
@@ -31,7 +31,11 @@ const Card = ({ wilder, setDeletingWilder }: CardTypeProps) => {
   }, [wilder]);
 
   const handleDeleteWilder = () => {
-    setDeletingWilder({ wilder, open: true, refCard });
+    setDeletingWilder({ wilder, open: true, refCard, type: "" });
+  };
+
+  const handleEditWilder = () => {
+    setModal({ open: true, type: "editWilder", wilder });
   };
 
   return (
@@ -81,7 +85,10 @@ const Card = ({ wilder, setDeletingWilder }: CardTypeProps) => {
         }`}
       >
         <div className="flex gap-2">
-          <button className="bg-indigo-200 p-2 rounded-full">
+          <button
+            className="bg-indigo-200 p-2 rounded-full"
+            onClick={handleEditWilder}
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="16"

@@ -1,16 +1,10 @@
-import { ModalType } from "../../types";
+import { ModalWrapperTypeProps } from "../../types";
 
 const ModalWrapper = ({
   children,
   title,
   setModal,
-}: {
-  children: JSX.Element;
-  title: string;
-  setModal: (
-    modal: React.SetStateAction<{ type: ModalType; open: boolean }>
-  ) => void;
-}): JSX.Element => {
+}: ModalWrapperTypeProps): JSX.Element => {
   const handleCloseModal = () => {
     setModal({ type: "", open: false });
   };
