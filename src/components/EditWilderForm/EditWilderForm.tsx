@@ -2,11 +2,11 @@ import axios from "axios";
 import { useFormik } from "formik";
 import Multiselect from "multiselect-react-dropdown";
 import { AddWilderSchema } from "../../schema/AddWilderSchema";
-import { EditWilderTypeProps } from "../../types";
+import { EditWilderTypeProps, WilderType } from "../../interfaces";
 
 function EditWilderForm({
-  setModal,
-  setData,
+  handleModal,
+  handleEditUpdateWilder,
   wilder,
   skills,
 }: EditWilderTypeProps) {
@@ -16,25 +16,22 @@ function EditWilderForm({
       lastname: wilder.lastname,
       description: wilder.description,
       avatar: wilder.avatar,
-      skills: wilder.skills,
+      skills: wilder.grades.map((grade) => grade.skill),
     },
-
+    enableReinitialize: true,
     onSubmit: async (values) => {
-      const response = await axios.put(
+      const response = await axios.put<WilderType>(
         `${process.env.REACT_APP_API_URL}/wilders/${wilder.id}`,
         values
       );
       if (response.status === 200) {
-        setModal({ open: false, type: "" });
-        setData((prev) =>
-          prev.map((w) => {
-            return w.id === wilder.id ? response.data : w;
-          })
-        );
+        handleModal({ open: false, type: "" });
+        handleEditUpdateWilder(response.data);
       }
     },
     validationSchema: AddWilderSchema,
   });
+
   return (
     <form onSubmit={formik.handleSubmit}>
       <div className="flex gap-4">

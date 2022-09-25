@@ -1,9 +1,12 @@
-import { AddSkillsTypeProps } from "../../types";
+import { AddSkillsTypeProps, SkillType } from "../../interfaces";
 import { useFormik } from "formik";
 import axios from "axios";
 import * as Yup from "yup";
 
-const AddSkillsForm = ({ setModal, setSkills }: AddSkillsTypeProps) => {
+const AddSkillsForm = ({
+  handleModal,
+  handleUpdateSkills,
+}: AddSkillsTypeProps) => {
   const formik = useFormik({
     initialValues: {
       name: "",
@@ -18,8 +21,8 @@ const AddSkillsForm = ({ setModal, setSkills }: AddSkillsTypeProps) => {
           values,
           { validateStatus: (status) => status === 200 }
         );
-        setModal({ type: "", open: false });
-        setSkills((prev) => [...prev, response.data]);
+        handleModal({ type: "", open: false });
+        handleUpdateSkills(response.data);
       } catch (err) {
         alert("Une erreur est survenue lors de l'ajout du skills");
       }

@@ -1,25 +1,25 @@
-import axios from "axios";
-import { ModalConfirmTypeProps } from "../../types";
+import axios, { AxiosResponse } from "axios";
+import { ModalConfirmTypeProps } from "../../interfaces";
 
 function ModalConfirm({
   wilder,
-  setDeletingWilder,
-  setData,
+  handleCloseDeleteWilder,
+  handleDeleteUpdateWilder,
   refCard,
 }: ModalConfirmTypeProps) {
   const handleCloseModal = () => {
-    setDeletingWilder({ open: false, type: "" });
+    handleCloseDeleteWilder({ open: false });
   };
 
   const handleDeleteWilder = async () => {
-    const response = await axios.delete(
+    const response = await axios.delete<AxiosResponse>(
       `${process.env.REACT_APP_API_URL}/wilders/${wilder.id}`
     );
     if (response.status === 204) {
-      setDeletingWilder({ open: false, type: "" });
+      handleCloseDeleteWilder({ open: false });
       refCard.current.classList.add("fadeOut");
       setTimeout(() => {
-        setData((prev) => prev.filter((w) => w.id !== wilder.id));
+        handleDeleteUpdateWilder(wilder);
       }, 400);
     }
   };

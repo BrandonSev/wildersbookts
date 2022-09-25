@@ -1,12 +1,12 @@
-import { ModalWrapperTypeProps } from "../../types";
+import { ModalWrapperTypeProps } from "../../interfaces";
 
 const ModalWrapper = ({
   children,
   title,
-  setModal,
+  handleModal,
 }: ModalWrapperTypeProps): JSX.Element => {
   const handleCloseModal = () => {
-    setModal({ type: "", open: false });
+    handleModal({ type: "", open: false });
   };
 
   return (

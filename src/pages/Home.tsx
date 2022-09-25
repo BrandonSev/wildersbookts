@@ -1,7 +1,12 @@
-import { MouseEvent, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import CardSkeleton from "../components/CardSkeleton/CardSkeleton";
-import { ModalType, SkillType, WilderType } from "../types";
+import {
+  deletingWilder,
+  ModalType,
+  SkillType,
+  WilderType,
+} from "../interfaces";
 import Card from "../components/Card/Card";
 import ModalWrapper from "../components/ModalWrapper/ModalWrapper";
 import AddSkillsForm from "../components/AddSkills/AddSkillsForm";
@@ -12,11 +17,7 @@ import EditWilderForm from "../components/EditWilderForm/EditWilderForm";
 const Home: React.FC = () => {
   const [data, setData] = useState<WilderType[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const [deletingWilder, setDeletingWilder] = useState<{
-    wilder?: WilderType;
-    open: boolean;
-    refCard?: React.MutableRefObject<HTMLDivElement>;
-  }>({
+  const [deletingWilder, setDeletingWilder] = useState<deletingWilder>({
     open: false,
   });
   const [modal, setModal] = useState<ModalType>({
@@ -31,7 +32,7 @@ const Home: React.FC = () => {
   useEffect(() => {
     (async () => {
       setTimeout(async () => {
-        const { data } = await axios.get(
+        const { data } = await axios.get<WilderType[]>(
           `${process.env.REACT_APP_API_URL}/wilders`
         );
         setData(data);
@@ -45,19 +46,56 @@ const Home: React.FC = () => {
    */
   useEffect(() => {
     (async () => {
-      const { data } = await axios.get(
+      const { data } = await axios.get<SkillType[]>(
         `${process.env.REACT_APP_API_URL}/skills`
       );
       setSkills(data);
     })();
   }, []);
 
-  const handleOpenModal = (e: MouseEvent, type: ModalType["type"]) => {
+  const handleModal = ({ type }: ModalType) => {
     setModal({ type, open: true });
   };
 
-  const handleCloseModal = () => {
-    setModal({ type: "", open: false });
+  const handleDeleteWilder = (
+    wilder: WilderType,
+    refCard: React.MutableRefObject<HTMLDivElement>,
+    open: boolean
+  ) => {
+    setDeletingWilder({ wilder, open, refCard });
+  };
+
+  const handleCloseDeleteWilder = () => {
+    setDeletingWilder({ open: false });
+  };
+
+  const handleEditWilder = (option: ModalType) => {
+    setModal({
+      open: option.open,
+      type: option.type,
+      refCard: option.refCard,
+      wilder: option.wilder,
+    });
+  };
+
+  const handleUpdateSkills = (skill: SkillType) => {
+    setSkills((prev) => [...prev, skill]);
+  };
+
+  const handleAddWilder = (wilder: WilderType) => {
+    setData((prev) => [...prev, { ...wilder, fadeIn: true }]);
+  };
+
+  const handleEditUpdateWilder = (wilder: WilderType) => {
+    setData((prev) =>
+      prev.map((w) => {
+        return w.id === wilder.id ? wilder : w;
+      })
+    );
+  };
+
+  const handleDeleteUpdateWilder = (wilder: WilderType) => {
+    setData((prev) => prev.filter((w) => w.id !== wilder.id));
   };
 
   return (
@@ -69,7 +107,7 @@ const Home: React.FC = () => {
         <div className="flex gap-2">
           <button
             className="text-black px-4 py-2 bg-indigo-300 text-sm rounded flex items-center gap-2"
-            onClick={(e) => handleOpenModal(e, "addWilder")}
+            onClick={() => handleModal({ type: "addWilder", open: true })}
           >
             Ajouter un wilder
             <svg
@@ -86,7 +124,7 @@ const Home: React.FC = () => {
           </button>
           <button
             className="text-black px-4 py-2 bg-indigo-300 text-sm rounded flex items-center gap-2"
-            onClick={(e) => handleOpenModal(e, "addSkill")}
+            onClick={() => handleModal({ type: "addSkill", open: true })}
           >
             Ajouter des skills
             <svg
@@ -112,8 +150,8 @@ const Home: React.FC = () => {
               <Card
                 wilder={wilder}
                 key={wilder.id}
-                setDeletingWilder={setDeletingWilder}
-                setModal={setModal}
+                handleDeleteWilder={handleDeleteWilder}
+                handleEditWilder={handleEditWilder}
               />
             );
           })
@@ -122,33 +160,36 @@ const Home: React.FC = () => {
         )}
       </div>
       {modal.open && modal.type === "addSkill" && (
-        <ModalWrapper title="Ajouter un skill" setModal={setModal}>
-          <AddSkillsForm setModal={setModal} setSkills={setSkills} />
+        <ModalWrapper title="Ajouter un skill" handleModal={handleModal}>
+          <AddSkillsForm
+            handleUpdateSkills={handleUpdateSkills}
+            handleModal={handleModal}
+          />
         </ModalWrapper>
       )}
       {modal.open && modal.type === "addWilder" && (
-        <ModalWrapper title="Ajouter un Wilder" setModal={setModal}>
+        <ModalWrapper title="Ajouter un Wilder" handleModal={handleModal}>
           <AddWilderForm
-            setModal={setModal}
+            handleModal={handleModal}
             skills={skills}
-            setData={setData}
+            handleAddWilder={handleAddWilder}
           />
         </ModalWrapper>
       )}
       {modal.open && modal.type === "editWilder" && modal.wilder && (
-        <ModalWrapper title="Modifier un Wilder" setModal={setModal}>
+        <ModalWrapper title="Modifier un Wilder" handleModal={handleModal}>
           <EditWilderForm
-            setModal={setModal}
+            handleModal={handleModal}
             skills={skills}
-            setData={setData}
             wilder={modal.wilder}
+            handleEditUpdateWilder={handleEditUpdateWilder}
           />
         </ModalWrapper>
       )}
       {deletingWilder && deletingWilder.refCard && deletingWilder.wilder && (
         <ModalConfirm
-          setDeletingWilder={setDeletingWilder}
-          setData={setData}
+          handleCloseDeleteWilder={handleCloseDeleteWilder}
+          handleDeleteUpdateWilder={handleDeleteUpdateWilder}
           refCard={deletingWilder.refCard}
           wilder={deletingWilder.wilder}
         />

@@ -1,10 +1,14 @@
 import axios from "axios";
 import { useFormik } from "formik";
 import Multiselect from "multiselect-react-dropdown";
-import { AddWilderTypeProps, SkillType } from "../../types";
+import { AddWilderTypeProps, SkillType } from "../../interfaces";
 import { AddWilderSchema } from "../../schema/AddWilderSchema";
 
-function AddWilderForm({ setModal, skills, setData }: AddWilderTypeProps) {
+function AddWilderForm({
+  handleModal,
+  skills,
+  handleAddWilder,
+}: AddWilderTypeProps) {
   const formik = useFormik({
     initialValues: {
       firstname: "",
@@ -20,8 +24,8 @@ function AddWilderForm({ setModal, skills, setData }: AddWilderTypeProps) {
           values,
           { validateStatus: (status) => status === 201 }
         );
-        setModal({ type: "", open: false });
-        setData((prev) => [...prev, { ...response.data, fadeIn: true }]);
+        handleModal({ type: "", open: false });
+        handleAddWilder(response.data);
       } catch (err) {
         alert("Une erreur est survenue lors de l'ajout du wilder");
       }

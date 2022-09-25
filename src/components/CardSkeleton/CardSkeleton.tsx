@@ -1,6 +1,7 @@
 import ContentLoader from "react-content-loader";
+import { CardSkeletonTypeProps } from "../../interfaces";
 
-function CardSkeleton({ item = 3 }) {
+function CardSkeleton({ item = 3 }: CardSkeletonTypeProps) {
   return (
     <div className="flex flex-wrap gap-4">
       {Array.from({ length: item }).map((_, index) => {

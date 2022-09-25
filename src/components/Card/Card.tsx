@@ -1,22 +1,25 @@
 import React from "react";
 import { useRef } from "react";
 import { useEffect } from "react";
-import { useCallback } from "react";
 import { useState } from "react";
-import { CardTypeProps } from "../../types";
+import { CardTypeProps } from "../../interfaces";
 import Skill from "../Skill/Skill";
 
-const Card = ({ wilder, setDeletingWilder, setModal }: CardTypeProps) => {
+const Card = ({
+  wilder,
+  handleDeleteWilder,
+  handleEditWilder,
+}: CardTypeProps) => {
   const [cardHover, setCardHover] = useState<boolean>(false);
   const refCard = useRef() as React.MutableRefObject<HTMLDivElement>;
 
-  const handleMouseOver = useCallback(() => {
+  const handleMouseOver = () => {
     setCardHover(true);
-  }, []);
+  };
 
-  const handleMouseLeave = useCallback(() => {
+  const handleMouseLeave = () => {
     setCardHover(false);
-  }, []);
+  };
 
   useEffect(() => {
     if (wilder.fadeIn) {
@@ -29,14 +32,6 @@ const Card = ({ wilder, setDeletingWilder, setModal }: CardTypeProps) => {
       }
     }
   }, [wilder]);
-
-  const handleDeleteWilder = () => {
-    setDeletingWilder({ wilder, open: true, refCard, type: "" });
-  };
-
-  const handleEditWilder = () => {
-    setModal({ open: true, type: "editWilder", wilder });
-  };
 
   return (
     <div
@@ -64,14 +59,14 @@ const Card = ({ wilder, setDeletingWilder, setModal }: CardTypeProps) => {
         <div className="flex items-center gap-2">
           <p className="p-2 bg-indigo-300 rounded text-black inline-block">
             Wild skills{" "}
-            {wilder.skills?.length ? `(${wilder.skills.length})` : ""}
+            {wilder.grades?.length ? `(${wilder.grades.length})` : ""}
           </p>
         </div>
         <div>
           <ul className="flex flex-wrap gap-4 mt-4">
-            {wilder.skills.length ? (
-              wilder.skills.map((skill) => {
-                return <Skill skill={skill} key={skill.id} />;
+            {wilder.grades.length ? (
+              wilder.grades.map((grade) => {
+                return <Skill grade={grade} key={grade.id} />;
               })
             ) : (
               <li className="p-2 bg-indigo-100 rounded">:/ No skills yet</li>
@@ -87,7 +82,14 @@ const Card = ({ wilder, setDeletingWilder, setModal }: CardTypeProps) => {
         <div className="flex gap-2">
           <button
             className="bg-indigo-200 p-2 rounded-full"
-            onClick={handleEditWilder}
+            onClick={() =>
+              handleEditWilder({
+                open: true,
+                wilder,
+                type: "editWilder",
+                refCard: refCard,
+              })
+            }
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -102,7 +104,7 @@ const Card = ({ wilder, setDeletingWilder, setModal }: CardTypeProps) => {
           </button>
           <button
             className="bg-indigo-200 p-2 rounded-full"
-            onClick={handleDeleteWilder}
+            onClick={() => handleDeleteWilder(wilder, refCard, true)}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
