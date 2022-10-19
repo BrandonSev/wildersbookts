@@ -1,12 +1,28 @@
-import { AddSkillsTypeProps, SkillType } from "../../interfaces";
+import { AddSkillsTypeProps } from "../../interfaces";
 import { useFormik } from "formik";
-import axios from "axios";
 import * as Yup from "yup";
+import { gql, useMutation } from "@apollo/client";
+
+const ADD_SKILLS = gql`
+  mutation CreateSkill($skill: CreateSkillInput!) {
+    createSkill(skill: $skill) {
+      id
+      name
+    }
+  }
+`;
 
 const AddSkillsForm = ({
   handleModal,
   handleUpdateSkills,
 }: AddSkillsTypeProps) => {
+  const [addSkills] = useMutation(ADD_SKILLS, {
+    onCompleted(data) {
+      handleModal({ type: "", open: false });
+      handleUpdateSkills(data.createSkill);
+    },
+  });
+
   const formik = useFormik({
     initialValues: {
       name: "",
@@ -16,13 +32,13 @@ const AddSkillsForm = ({
     }),
     onSubmit: async (values) => {
       try {
-        const response = await axios.post(
-          `${process.env.REACT_APP_API_URL}/skills`,
-          values,
-          { validateStatus: (status) => status === 200 }
-        );
-        handleModal({ type: "", open: false });
-        handleUpdateSkills(response.data);
+        addSkills({
+          variables: {
+            skill: {
+              name: values.name,
+            },
+          },
+        });
       } catch (err) {
         alert("Une erreur est survenue lors de l'ajout du skills");
       }

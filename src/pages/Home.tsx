@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
+import React, { useState } from "react";
+import { useQuery, gql } from "@apollo/client";
 import CardSkeleton from "../components/CardSkeleton/CardSkeleton";
 import {
   deletingWilder,
@@ -14,9 +14,38 @@ import AddWilderForm from "../components/AddWilder/AddWilderForm";
 import ModalConfirm from "../components/ModalConfirm/ModalConfirm";
 import EditWilderForm from "../components/EditWilderForm/EditWilderForm";
 
+const GET_WILDERS = gql`
+  query wilders {
+    getAllWilders {
+      id
+      firstname
+      lastname
+      description
+      avatar
+      grades {
+        id
+        vote
+        skill {
+          id
+          name
+        }
+      }
+    }
+  }
+`;
+
+const GET_SKILLS = gql`
+  query skills {
+    getAll {
+      id
+      name
+    }
+  }
+`;
+
 const Home: React.FC = () => {
-  const [data, setData] = useState<WilderType[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [wilders, setData] = useState<WilderType[]>([]);
+  const [skills, setSkills] = useState<SkillType[]>([]);
   const [deletingWilder, setDeletingWilder] = useState<deletingWilder>({
     open: false,
   });
@@ -24,34 +53,18 @@ const Home: React.FC = () => {
     open: false,
     type: "",
   });
-  const [skills, setSkills] = useState<SkillType[]>([]);
 
-  /**
-   * Fetch data from API
-   */
-  useEffect(() => {
-    (async () => {
-      setTimeout(async () => {
-        const { data } = await axios.get<WilderType[]>(
-          `${process.env.REACT_APP_API_URL}/wilders`
-        );
-        setData(data);
-        setLoading(false);
-      }, 2000);
-    })();
-  }, []);
+  useQuery(GET_SKILLS, {
+    onCompleted(data) {
+      setSkills(data.getAll);
+    },
+  });
 
-  /**
-   * Fetch skills from API
-   */
-  useEffect(() => {
-    (async () => {
-      const { data } = await axios.get<SkillType[]>(
-        `${process.env.REACT_APP_API_URL}/skills`
-      );
-      setSkills(data);
-    })();
-  }, []);
+  const { loading: wildersLoading } = useQuery(GET_WILDERS, {
+    onCompleted(data) {
+      setData(data.getAllWilders);
+    },
+  });
 
   const handleModal = ({ type }: ModalType) => {
     setModal({ type, open: true });
@@ -100,7 +113,7 @@ const Home: React.FC = () => {
 
   return (
     <div className="container px-4 mx-auto relative">
-      <div className="flex items-stretch justify-between mb-6">
+      <div className="flex items-stretch justify-between mb-6 flex-wrap gap-2">
         <p className="py-2 px-4 inline-block text-md bg-indigo-300 rounded  text-black cursor-pointer">
           Liste des wilders
         </p>
@@ -142,10 +155,10 @@ const Home: React.FC = () => {
         </div>
       </div>
       <div className="flex flex-wrap gap-10">
-        {loading ? (
+        {wildersLoading ? (
           <CardSkeleton item={2} />
-        ) : data.length ? (
-          data.map((wilder) => {
+        ) : wilders.length ? (
+          wilders.map((wilder: WilderType) => {
             return (
               <Card
                 wilder={wilder}
@@ -159,33 +172,43 @@ const Home: React.FC = () => {
           <p>Aucun wilder</p>
         )}
       </div>
-      {modal.open && modal.type === "addSkill" && (
-        <ModalWrapper title="Ajouter un skill" handleModal={handleModal}>
-          <AddSkillsForm
-            handleUpdateSkills={handleUpdateSkills}
-            handleModal={handleModal}
-          />
-        </ModalWrapper>
-      )}
-      {modal.open && modal.type === "addWilder" && (
-        <ModalWrapper title="Ajouter un Wilder" handleModal={handleModal}>
-          <AddWilderForm
-            handleModal={handleModal}
-            skills={skills}
-            handleAddWilder={handleAddWilder}
-          />
-        </ModalWrapper>
-      )}
-      {modal.open && modal.type === "editWilder" && modal.wilder && (
-        <ModalWrapper title="Modifier un Wilder" handleModal={handleModal}>
-          <EditWilderForm
-            handleModal={handleModal}
-            skills={skills}
-            wilder={modal.wilder}
-            handleEditUpdateWilder={handleEditUpdateWilder}
-          />
-        </ModalWrapper>
-      )}
+      <ModalWrapper
+        title="Ajouter un skill"
+        handleModal={handleModal}
+        isOpen={modal.open && modal.type === "addSkill"}
+      >
+        <AddSkillsForm
+          handleUpdateSkills={handleUpdateSkills}
+          handleModal={handleModal}
+        />
+      </ModalWrapper>
+      <ModalWrapper
+        title="Ajouter un Wilder"
+        handleModal={handleModal}
+        isOpen={modal.open && modal.type === "addWilder"}
+      >
+        <AddWilderForm
+          handleModal={handleModal}
+          skills={skills}
+          handleAddWilder={handleAddWilder}
+        />
+      </ModalWrapper>
+      <ModalWrapper
+        title="Modifier un Wilder"
+        handleModal={handleModal}
+        isOpen={modal.open && modal.type === "editWilder"}
+      >
+        <>
+          {modal.wilder && (
+            <EditWilderForm
+              handleModal={handleModal}
+              skills={skills}
+              wilder={modal.wilder}
+              handleEditUpdateWilder={handleEditUpdateWilder}
+            />
+          )}
+        </>
+      </ModalWrapper>
       {deletingWilder && deletingWilder.refCard && deletingWilder.wilder && (
         <ModalConfirm
           handleCloseDeleteWilder={handleCloseDeleteWilder}

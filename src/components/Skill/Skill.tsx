@@ -1,4 +1,4 @@
-import axios from "axios";
+import { gql, useMutation } from "@apollo/client";
 import React, { useEffect, useRef } from "react";
 import { SkillTypeProps } from "../../interfaces";
 
@@ -30,19 +30,33 @@ const carouselBehavior = (
   });
 };
 
+const INCREMENT_SKILL = gql`
+  mutation IncrementGrade($id: Float!) {
+    incrementGrade(id: $id) {
+      id
+      vote
+      skill {
+        id
+        name
+      }
+    }
+  }
+`;
+
 const Skill = ({ grade }: SkillTypeProps) => {
   const numberRef = useRef() as React.MutableRefObject<HTMLDivElement>;
-  const handleIncrementSkill = async () => {
-    const response = await axios.post(
-      `${process.env.REACT_APP_API_URL}/grades/${grade.id}/increment`,
-      null,
-      {
-        validateStatus: (status) => status === 200,
-      }
-    );
-    if (response.status === 200) {
+
+  const [incrementGrade] = useMutation(INCREMENT_SKILL, {
+    onCompleted() {
       carouselBehavior(numberRef);
-    }
+    },
+    variables: {
+      id: grade.id,
+    },
+  });
+
+  const handleIncrementSkill = async () => {
+    incrementGrade();
   };
 
   useEffect(() => {

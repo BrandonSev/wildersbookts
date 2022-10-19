@@ -71,6 +71,7 @@ export interface ModalWrapperTypeProps {
   children: JSX.Element;
   title: string;
   handleModal: (modal: ModalType) => void;
+  isOpen?: boolean;
 }
 
 export interface CardSkeletonTypeProps {

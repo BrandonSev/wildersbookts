@@ -1,5 +1,11 @@
-import axios, { AxiosResponse } from "axios";
+import { gql, useMutation } from "@apollo/client";
 import { ModalConfirmTypeProps } from "../../interfaces";
+
+const DELETE_WILDER = gql`
+  mutation DeleteWilders($id: Float!) {
+    deleteWilder(id: $id)
+  }
+`;
 
 function ModalConfirm({
   wilder,
@@ -12,17 +18,24 @@ function ModalConfirm({
   };
 
   const handleDeleteWilder = async () => {
-    const response = await axios.delete<AxiosResponse>(
-      `${process.env.REACT_APP_API_URL}/wilders/${wilder.id}`
-    );
-    if (response.status === 204) {
-      handleCloseDeleteWilder({ open: false });
-      refCard.current.classList.add("fadeOut");
-      setTimeout(() => {
-        handleDeleteUpdateWilder(wilder);
-      }, 400);
-    }
+    deleteWilder({
+      variables: {
+        id: wilder.id,
+      },
+    });
   };
+
+  const [deleteWilder] = useMutation(DELETE_WILDER, {
+    onCompleted: (data) => {
+      if (data.deleteWilder) {
+        handleCloseDeleteWilder({ open: false });
+        refCard.current.classList.add("fadeOut");
+        setTimeout(() => {
+          handleDeleteUpdateWilder(wilder);
+        }, 400);
+      }
+    },
+  });
 
   return (
     <div className="fixed inset-0 bg-black/20">

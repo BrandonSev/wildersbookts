@@ -1,14 +1,40 @@
-import axios from "axios";
+import { gql, useMutation } from "@apollo/client";
 import { useFormik } from "formik";
 import Multiselect from "multiselect-react-dropdown";
-import { AddWilderTypeProps, SkillType } from "../../interfaces";
+import { AddWilderTypeProps, SkillType, WilderType } from "../../interfaces";
 import { AddWilderSchema } from "../../schema/AddWilderSchema";
+
+const ADD_WILDER = gql`
+  mutation CreateWilder($wilder: CreateWilderInput!) {
+    createWilder(wilder: $wilder) {
+      id
+      firstname
+      lastname
+      description
+      avatar
+      grades {
+        id
+        vote
+        skill {
+          name
+        }
+      }
+    }
+  }
+`;
 
 function AddWilderForm({
   handleModal,
   skills,
   handleAddWilder,
 }: AddWilderTypeProps) {
+  const [addWilder] = useMutation(ADD_WILDER, {
+    onCompleted({ createWilder }: { createWilder: WilderType }) {
+      handleModal({ type: "", open: false });
+      handleAddWilder(createWilder);
+    },
+  });
+
   const formik = useFormik({
     initialValues: {
       firstname: "",
@@ -19,13 +45,17 @@ function AddWilderForm({
     },
     onSubmit: async (values) => {
       try {
-        const response = await axios.post(
-          `${process.env.REACT_APP_API_URL}/wilders`,
-          values,
-          { validateStatus: (status) => status === 201 }
-        );
-        handleModal({ type: "", open: false });
-        handleAddWilder(response.data);
+        addWilder({
+          variables: {
+            wilder: {
+              firstname: values.firstname,
+              lastname: values.lastname,
+              description: values.description,
+              avatar: values.avatar,
+              skills: values.skills,
+            },
+          },
+        });
       } catch (err) {
         alert("Une erreur est survenue lors de l'ajout du wilder");
       }

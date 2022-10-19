@@ -4,28 +4,58 @@
 
 @layer components {
   .fadeOut {
-    animation: fadeOut .4s ease-in-out both;
+    animation: fadeOut 0.2s ease-in-out both;
   }
   @keyframes fadeOut {
-    0 % {
+    0% {
       opacity: 1;
     }
     100% {
       opacity: 0;
     }
-    
   }
   .fadeIn {
-      animation: fadeIn .4s ease-in both;
+    animation: fadeIn 0.2s ease-in both;
   }
   @keyframes fadeIn {
-      0 % {
+    0% {
       opacity: 0;
-      }
-      100% {
+    }
+    100% {
       opacity: 1;
-      }
+    }
+  }
+  @keyframes enter {
+    from {
+      transform: translateY(0);
+    }
+    to {
+      transform: translateY(8px);
+    }
+  }
+  @keyframes leave {
+    from {
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 0;
+      transform: translateY(0);
+    }
+  }
+  .enter {
+    animation: enter 0.2s ease-in both;
+  }
+  .leave {
+    animation: leave 0.2s ease-in-out both;
   }
 }
 
-.multiselect-container li:hover { background: rgb(165 180 252) !important; color: rgb(0, 0, 0) !important; cursor: pointer; } .highlightOption { background: rgb(165 180 252); color: #000000; }
+.multiselect-container li:hover {
+  background: rgb(165 180 252) !important;
+  color: rgb(0, 0, 0) !important;
+  cursor: pointer;
+}
+.highlightOption {
+  background: rgb(165 180 252);
+  color: #000000;
+}
